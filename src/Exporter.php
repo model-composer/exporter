@@ -88,6 +88,9 @@ class Exporter
 			case 'csv':
 				return new \Model\Exporter\DataExporters\Csv;
 
+			case 'xlsx':
+				return new \Model\Exporter\DataExporters\Xlsx;
+
 			case 'html':
 				return new \Model\Exporter\DataExporters\Html;
 
