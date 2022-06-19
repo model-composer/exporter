@@ -53,12 +53,14 @@ class Exporter
 		self::saveFile($id, $currentPage, $converted, $exportData['dir']);
 
 		if ($currentPage === $exportData['tot']) {
-			$cache->deleteItem('model-exporter-' . $id . '-main');
+			$filename = $exportData['dir'] . $id . '.' . $exporter->getFileExtension();
+			$exporter->finalize($filename, $exportData['dir'] . $id, $exportData['tot'], $exportData['options']);
 
-			$exporter->finalize($exportData['dir'] . $id . '.' . $exporter->getFileExtension(), $exportData['dir'] . $id, $exportData['tot'], $exportData['options']);
+			$cache->deleteItem('model-exporter-' . $id . '-main');
 
 			return [
 				'status' => 'finished',
+				'file' => $filename,
 			];
 		} else {
 			$cacheItem->set([
@@ -88,9 +90,9 @@ class Exporter
 
 	private static function saveFile(string $id, int $page, string $data, ?string $dir)
 	{
-		if (!is_dir($dir . 'model-exports' . DIRECTORY_SEPARATOR . $id))
-			mkdir($dir . 'model-exports' . DIRECTORY_SEPARATOR . $id, 0777, true);
+		if (!is_dir($dir . $id))
+			mkdir($dir . $id, 0777, true);
 
-		file_put_contents($dir . 'model-exports' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . $page, $data);
+		file_put_contents($dir . $id . DIRECTORY_SEPARATOR . $page, $data);
 	}
 }
