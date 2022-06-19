@@ -2,6 +2,11 @@
 
 abstract class DataExporter
 {
+	public function hasHeaderAt(int $page): bool
+	{
+		return $page === 1;
+	}
+
 	abstract public function setHeader(array $header, array $options): void;
 
 	abstract public function convert(iterable $data, array $options): string;

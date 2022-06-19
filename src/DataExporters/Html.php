@@ -21,9 +21,23 @@ class Html extends DataExporter
 			$text = $this->header . '<tbody>';
 
 		foreach ($data as $row) {
+			$rowTextColor = $row['color'] ?? null;
+			$rowBackground = $row['background'] ?? null;
+
 			$text .= '<tr>';
-			foreach ($row as $value)
-				$text .= '<td>' . htmlentities($value, ENT_QUOTES | ENT_IGNORE, 'UTF-8') . '</td>';
+			foreach ($row['cells'] as $cell) {
+				$cellStyle = [];
+
+				$cellTextColor = $cell['color'] ?? $rowTextColor;
+				if ($cellTextColor)
+					$cellStyle[] = 'color: ' . $cellTextColor;
+
+				$cellBackground = $cell['background'] ?? $rowBackground;
+				if ($cellBackground)
+					$cellStyle[] = 'background: ' . $cellBackground;
+
+				$text .= '<td style="' . implode(';', $cellStyle) . '">' . htmlentities($cell['value'], ENT_QUOTES | ENT_IGNORE, 'UTF-8') . '</td>';
+			}
 			$text .= '</tr>';
 		}
 

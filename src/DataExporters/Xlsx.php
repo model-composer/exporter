@@ -3,6 +3,7 @@
 use ExcelMerge\ExcelMerge;
 use Model\Exporter\DataExporter;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class Xlsx extends DataExporter
@@ -15,6 +16,11 @@ class Xlsx extends DataExporter
 	{
 		$this->spreadsheet = new Spreadsheet();
 		$this->sheet = $this->spreadsheet->getActiveSheet();
+	}
+
+	public function hasHeaderAt(int $page): bool
+	{
+		return true;
 	}
 
 	public function setHeader(array $header, array $options): void
@@ -35,9 +41,21 @@ class Xlsx extends DataExporter
 		$rowNumber = $this->headerSet ? 2 : 1;
 
 		foreach ($data as $row) {
+			$rowTextColor = $row['color'] ?? null;
+			$rowBackground = $row['background'] ?? null;
+
 			$letter = 'A';
-			foreach ($row as $value) {
-				$this->sheet->setCellValue($letter . $rowNumber, $value);
+			foreach ($row['items'] as $cell) {
+				$this->sheet->setCellValue($letter . $rowNumber, $cell['value']);
+
+				$cellTextColor = $cell['color'] ?? $rowTextColor;
+				if ($cellTextColor)
+					$this->sheet->getStyle($letter . $rowNumber)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB($cellTextColor);
+
+				$cellBackground = $cell['background'] ?? $rowBackground;
+				if ($cellBackground)
+					$this->sheet->getStyle($letter . $rowNumber)->getFont()->getColor()->setRGB($cellBackground);
+
 				$letter = $this->increaseLetter($letter);
 			}
 

@@ -21,7 +21,15 @@ class Csv extends DataExporter
 	public function convert(iterable $data, array $options): string
 	{
 		$this->csv->setDelimiter($options['delimiter'] ?? ',');
-		$this->csv->insertAll($data);
+
+		foreach ($data as $row) {
+			$cells = [];
+			foreach ($row['cells'] as $cell)
+				$cells[] = $cell['value'];
+
+			$this->csv->insertOne($cells);
+		}
+
 		return $this->csv->toString();
 	}
 

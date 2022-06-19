@@ -43,7 +43,7 @@ class Exporter
 		$exporter = self::getDataExporter($exportData['format']);
 
 		$currentPage = $exportData['current'] + 1;
-		if ($currentPage === 1)
+		if ($exporter->hasHeaderAt($currentPage))
 			$exporter->setHeader($provider->getHeader(), $exportData['options']);
 
 		$data = $provider->getNext($exportData['paginate'], $currentPage);
