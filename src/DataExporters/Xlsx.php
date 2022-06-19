@@ -71,8 +71,11 @@ class Xlsx extends DataExporter
 		return ob_get_clean();
 	}
 
-	private function normalizeColor(string $color): string
+	private function normalizeColor(?string $color): ?string
 	{
+		if (!$color)
+			return $color;
+
 		if ($color[0] === '#') {
 			$color = substr($color, 1);
 			if (strlen($color) === 3)
