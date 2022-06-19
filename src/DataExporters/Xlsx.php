@@ -45,7 +45,7 @@ class Xlsx extends DataExporter
 			$rowBackground = $row['background'] ?? null;
 
 			$letter = 'A';
-			foreach ($row['items'] as $cell) {
+			foreach ($row['cells'] as $cell) {
 				$this->sheet->setCellValue($letter . $rowNumber, $cell['value']);
 
 				$cellTextColor = $cell['color'] ?? $rowTextColor;
