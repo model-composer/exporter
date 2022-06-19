@@ -5,20 +5,26 @@ use Model\Exporter\DataExporters\Csv;
 
 class Exporter
 {
-	public static function beginExport(DataProvider $provider, string $final_dir, string $format, int $paginate = 50, array $options = []): string
+	public static function beginExport(DataProvider $provider, string $dir, string $format, int $paginate = 50, array $options = []): string
 	{
+		$tot = $provider->getTot($paginate);
+		if ($tot <= 0)
+			throw new \Exception('No items to export');
+
+		if (!str_ends_with($dir, DIRECTORY_SEPARATOR))
+			$dir .= DIRECTORY_SEPARATOR;
+
 		$id = uniqid();
 
 		$cache = Cache::getCacheAdapter();
 		$cacheItem = $cache->getItem('model-exporter-' . $id . '-main');
 		$cacheItem->set([
 			'paginate' => $paginate,
-			'tot' => $provider->getTot($paginate),
+			'tot' => $tot,
 			'current' => 0,
 			'format' => $format,
 			'options' => $options,
-			'tmp_dir' => $options['tmp_dir'] ?? null,
-			'final_dir' => $final_dir,
+			'dir' => $dir,
 		]);
 		$cacheItem->expiresAfter(3600 * 24);
 		$cache->save($cacheItem);
@@ -44,14 +50,12 @@ class Exporter
 		$data = $provider->getNext($exportData['paginate'], $currentPage);
 		$converted = $exporter->convert($data, $exportData['options']);
 
-		self::saveFile($id, $currentPage, $converted, $exportData['tmp_dir']);
+		self::saveFile($id, $currentPage, $converted, $exportData['dir']);
 
 		if ($currentPage === $exportData['tot']) {
 			$cache->deleteItem('model-exporter-' . $id . '-main');
 
-			$tmp_dir = self::normalizeTmpDir($exportData['tmp_dir']);
-
-			$exporter->finalize($exportData['final_dir'] . $id . '.' . $exporter->getFileExtension(), $tmp_dir . $id, $exportData['tot'], $exportData['options']);
+			$exporter->finalize($exportData['dir'] . $id . '.' . $exporter->getFileExtension(), $exportData['dir'] . $id, $exportData['tot'], $exportData['options']);
 
 			return [
 				'status' => 'finished',
@@ -82,21 +86,11 @@ class Exporter
 		}
 	}
 
-	private static function saveFile(string $id, int $page, string $data, ?string $tmp_dir)
+	private static function saveFile(string $id, int $page, string $data, ?string $dir)
 	{
-		$tmp_dir = self::normalizeTmpDir($tmp_dir);
-		if (!is_dir($tmp_dir . 'model-exports' . DIRECTORY_SEPARATOR . $id))
-			mkdir($tmp_dir . 'model-exports' . DIRECTORY_SEPARATOR . $id, 0777, true);
+		if (!is_dir($dir . 'model-exports' . DIRECTORY_SEPARATOR . $id))
+			mkdir($dir . 'model-exports' . DIRECTORY_SEPARATOR . $id, 0777, true);
 
-		file_put_contents($tmp_dir . 'model-exports' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . $page, $data);
-	}
-
-	private static function normalizeTmpDir(?string $tmp_dir): string
-	{
-		if ($tmp_dir === null)
-			$tmp_dir = sys_get_temp_dir();
-		if (!str_ends_with($tmp_dir, DIRECTORY_SEPARATOR))
-			$tmp_dir = DIRECTORY_SEPARATOR;
-		return $tmp_dir;
+		file_put_contents($dir . 'model-exports' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . $page, $data);
 	}
 }
