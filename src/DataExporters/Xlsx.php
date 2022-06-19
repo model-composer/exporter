@@ -48,13 +48,13 @@ class Xlsx extends DataExporter
 			foreach ($row['cells'] as $cell) {
 				$this->sheet->setCellValue($letter . $rowNumber, $cell['value']);
 
-				$cellTextColor = $cell['color'] ?? $rowTextColor;
+				$cellTextColor = $this->normalizeColor($cell['color'] ?? $rowTextColor);
 				if ($cellTextColor)
-					$this->sheet->getStyle($letter . $rowNumber)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB($cellTextColor);
+					$this->sheet->getStyle($letter . $rowNumber)->getFont()->getColor()->setRGB($cellTextColor);
 
-				$cellBackground = $cell['background'] ?? $rowBackground;
+				$cellBackground = $this->normalizeColor($cell['background'] ?? $rowBackground);
 				if ($cellBackground)
-					$this->sheet->getStyle($letter . $rowNumber)->getFont()->getColor()->setRGB($cellBackground);
+					$this->sheet->getStyle($letter . $rowNumber)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB($cellBackground);
 
 				$letter = $this->increaseLetter($letter);
 			}
@@ -69,6 +69,17 @@ class Xlsx extends DataExporter
 		$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($this->spreadsheet);
 		$writer->save('php://output');
 		return ob_get_clean();
+	}
+
+	private function normalizeColor(string $color): string
+	{
+		if ($color[0] === '#') {
+			$color = substr($color, 1);
+			if (strlen($color) === 3)
+				$color = $color[0] . $color[0] . $color[1] . $color[1] . $color[2] . $color[2];
+		}
+
+		return $color;
 	}
 
 	public function getFileExtension(): string
