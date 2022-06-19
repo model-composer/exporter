@@ -35,7 +35,7 @@ class Html extends DataExporter
 		return 'html';
 	}
 
-	public function finalize(string $filePath, string $folder, int $pages, array $options): void
+	public function finalize(array $tmp_files, string $filePath, int $pages, array $options): void
 	{
 		$file = fopen($filePath, 'w');
 
@@ -47,8 +47,8 @@ th, td{border: solid #999 1px;font-size: 11px;padding: 5px}
 
 <table>');
 
-		for ($c = 1; $c <= $pages; $c++)
-			fwrite($file, file_get_contents($folder . DIRECTORY_SEPARATOR . $c));
+		foreach ($tmp_files as $tmp_file)
+			fwrite($file, file_get_contents($tmp_file));
 
 		fwrite($file, '</tbody>
 </table>');

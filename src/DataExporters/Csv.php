@@ -30,12 +30,12 @@ class Csv extends DataExporter
 		return 'csv';
 	}
 
-	public function finalize(string $filePath, string $folder, int $pages, array $options): void
+	public function finalize(array $tmp_files, string $filePath, int $pages, array $options): void
 	{
 		$file = fopen($filePath, 'w');
 
-		for ($c = 1; $c <= $pages; $c++)
-			fwrite($file, file_get_contents($folder . DIRECTORY_SEPARATOR . $c));
+		foreach ($tmp_files as $tmp_file)
+			fwrite($file, file_get_contents($tmp_file));
 
 		fclose($file);
 	}

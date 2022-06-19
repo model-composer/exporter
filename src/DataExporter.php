@@ -8,5 +8,5 @@ abstract class DataExporter
 
 	abstract public function getFileExtension(): string;
 
-	abstract public function finalize(string $filePath, string $folder, int $pages, array $options): void;
+	abstract public function finalize(array $tmp_files, string $filePath, int $pages, array $options): void;
 }

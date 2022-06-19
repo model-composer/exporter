@@ -55,13 +55,9 @@ class Xlsx extends DataExporter
 		return 'xlsx';
 	}
 
-	public function finalize(string $filePath, string $folder, int $pages, array $options): void
+	public function finalize(array $tmp_files, string $filePath, int $pages, array $options): void
 	{
-		$filesToMerge = [];
-		for ($c = 1; $c <= $pages; $c++)
-			$filesToMerge[] = $folder . DIRECTORY_SEPARATOR . $c;
-
-		$merged = new ExcelMerge($filesToMerge);
+		$merged = new ExcelMerge($tmp_files);
 		$merged->save($filePath);
 	}
 

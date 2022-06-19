@@ -49,23 +49,29 @@ class Exporter
 		$data = $provider->getNext($exportData['paginate'], $currentPage);
 		$converted = $exporter->convert($data, $exportData['options']);
 
-		self::saveFile($id, $currentPage, $converted, $exportData['dir']);
+		$fileExt = $exporter->getFileExtension();
+
+		self::saveFile($id, $currentPage, $converted, $fileExt, $exportData['dir']);
 
 		if ($currentPage === $exportData['tot']) {
-			$filename = $exportData['dir'] . $id . '.' . $exporter->getFileExtension();
+			$final_filename = $exportData['dir'] . $id . '.' . $fileExt;
 			$tmp_folder = $exportData['dir'] . $id;
 
-			$exporter->finalize($filename, $tmp_folder, $exportData['tot'], $exportData['options']);
-
+			$tmp_files = [];
 			for ($c = 1; $c <= $exportData['tot']; $c++)
-				unlink($tmp_folder . DIRECTORY_SEPARATOR . $c);
+				$tmp_files[] = $tmp_folder . DIRECTORY_SEPARATOR . $c . '.' . $fileExt;
+
+			$exporter->finalize($tmp_files, $final_filename, $exportData['tot'], $exportData['options']);
+
+			foreach ($tmp_files as $tmp_file)
+				unlink($tmp_file);
 			rmdir($tmp_folder);
 
 			$cache->deleteItem('model-exporter-' . $id . '-main');
 
 			return [
 				'status' => 'finished',
-				'file' => $filename,
+				'file' => $final_filename,
 			];
 		} else {
 			$cacheItem->set([
@@ -99,11 +105,11 @@ class Exporter
 		}
 	}
 
-	private static function saveFile(string $id, int $page, string $data, ?string $dir)
+	private static function saveFile(string $id, int $page, string $data, string $ext, ?string $dir)
 	{
 		if (!is_dir($dir . $id))
 			mkdir($dir . $id, 0777, true);
 
-		file_put_contents($dir . $id . DIRECTORY_SEPARATOR . $page, $data);
+		file_put_contents($dir . $id . DIRECTORY_SEPARATOR . $page . '.' . $ext, $data);
 	}
 }
