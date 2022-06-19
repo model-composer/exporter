@@ -5,7 +5,7 @@ use Model\Exporter\DataExporters\Csv;
 
 class Exporter
 {
-	public static function beginExport(DataProvider $provider, string $dir, string $format, int $paginate = 50, array $options = []): string
+	public static function beginExport(DataProvider $provider, string $dir, string $format, int $paginate = 100, array $options = []): string
 	{
 		$tot = $provider->getTot($paginate);
 		if ($tot <= 0)
