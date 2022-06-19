@@ -1,7 +1,6 @@
 <?php namespace Model\Exporter;
 
 use Model\Cache\Cache;
-use Model\Exporter\DataExporters\Csv;
 
 class Exporter
 {
@@ -87,7 +86,10 @@ class Exporter
 	{
 		switch ($format) {
 			case 'csv':
-				return new Csv;
+				return new \Model\Exporter\DataExporters\Csv;
+
+			case 'html':
+				return new \Model\Exporter\DataExporters\Html;
 
 			default:
 				throw new \Exception('"' . $format . '" exporter not found', 404);
