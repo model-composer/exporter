@@ -44,6 +44,9 @@ class Xlsx extends DataExporter
 			$rowNumber++;
 		}
 
+		foreach ($this->sheet->getColumnIterator() as $column)
+			$this->sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
+
 		ob_start();
 		$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($this->spreadsheet);
 		$writer->save('php://output');
