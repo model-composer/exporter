@@ -54,7 +54,13 @@ class Exporter
 
 		if ($currentPage === $exportData['tot']) {
 			$filename = $exportData['dir'] . $id . '.' . $exporter->getFileExtension();
-			$exporter->finalize($filename, $exportData['dir'] . $id, $exportData['tot'], $exportData['options']);
+			$tmp_folder = $exportData['dir'] . $id;
+
+			$exporter->finalize($filename, $tmp_folder, $exportData['tot'], $exportData['options']);
+
+			for ($c = 1; $c <= $exportData['tot']; $c++)
+				unlink($tmp_folder . DIRECTORY_SEPARATOR . $c);
+			rmdir($tmp_folder);
 
 			$cache->deleteItem('model-exporter-' . $id . '-main');
 
