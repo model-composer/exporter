@@ -43,6 +43,7 @@ class Xlsx extends DataExporter
 		foreach ($data as $row) {
 			$rowTextColor = $row['color'] ?? null;
 			$rowBackground = $row['background'] ?? null;
+			$rowFormat = $row['format'] ?? null;
 
 			$letter = 'A';
 			foreach ($row['cells'] as $cell) {
@@ -55,6 +56,10 @@ class Xlsx extends DataExporter
 				$cellBackground = $this->normalizeColor($cell['background'] ?? $rowBackground);
 				if ($cellBackground)
 					$this->sheet->getStyle($letter . $rowNumber)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB($cellBackground);
+
+				$cellFormat = $cell['format'] ?? $rowFormat;
+				if ($cellFormat)
+					$this->sheet->getStyle($letter . $rowNumber)->getNumberFormat()->setFormatCode($cellFormat);
 
 				$letter = $this->increaseLetter($letter);
 			}
